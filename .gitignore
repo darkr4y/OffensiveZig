@@ -1,0 +1,6 @@
+*.exe
+*.pdb
+zig-cache
+.DS_Store
+zig-win32
+requestz
