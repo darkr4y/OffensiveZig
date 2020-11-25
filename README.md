@@ -12,7 +12,7 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
 - [OffensiveZig](#offensivezig)
   - [Table of Contents](#table-of-contents)
   - [Why Zig?](#why-zig)
-  - [Learn Zig in Y minutes](#learn-zig-in-y-minutes)
+  - [Try to Learn Zig in Y minutes](#try-to-learn-zig-in-y-minutes)
   - [How to play](#how-to-play)
   - [Cross Compiling](#cross-compiling)
   - [Interfacing with C/C++](#interfacing-with-cc)
@@ -40,52 +40,9 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
 - Its very easy to do cross-compile things and can build for any of the targets from [here](https://ziglang.org/#Support-Table), no "cross toolchain" needs to be installed or anything like that.
 - To Learn `zig zen`: together we serve the users.
 
-## Learn Zig in Y minutes
+## Try to Learn Zig in Y minutes
 
-Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.com/docs/nim/) and it also has a [Book](https://livebook.manning.com/book/nim-in-action) named *Nim in Action*, but Zig dont't and here's a dirty cheatsheet about Zig from my own modest knowledge.
-
-main.zig:
-```
-// This is normal comment
-// There are no multiline comments in Zig (e.g. like /* */ comments in C).
-/// Doc comments
-//! Top-level doc commnets 
-
-const std = @import("std");
-
-// like go must have main function
-// in Zig '!' means that the function may return an error, '?' is for declaring a maybe type
-pub fn main() !void {
-    const stdout = std.io.getStdOut().writer();
-    try stdout.print("Hello, {}!\n", .{"world"});
-	
-	
-	// Assignment expr: var some_variable: i32 = 5;
-	var some_variable: i32 = 5;
-	// const
-	const some_constant: i32 = 5;
-	// Type Inference
-	var some_variable = @as(i32, 5);
-	const some_constant = @as(i32, 5);
-	// Something like C's void 
-	var x: u8 = undefined;
-	// Ignore the variable, like Go
-	_ = 10;
-	// Defining Arrays
-	var a = [_]u8{ 1, 2, 3 };
-	const a = [3]u8{ 1, 2, 3 };
-	
-}
-```
-To test:
-```
-zig run main.zig
-or
-zig build-exe hello.zig
-./hello
-```
-*ps:
-lots of content referenced from https://ziglearn.org & Zig's main developer youtube channel https://www.youtube.com/channel/UCUICU6mgcyGy61pojwuWyHA* 
+Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.com/docs/nim/) and it also has a [Book](https://livebook.manning.com/book/nim-in-action) named *Nim in Action*, but Zig dont't. You can find lots of content referenced from https://ziglearn.org & Zig's main developer youtube channel https://www.youtube.com/channel/UCUICU6mgcyGy61pojwuWyHA* 
 
 ## How to play
 
@@ -101,8 +58,6 @@ lots of content referenced from https://ziglearn.org & Zig's main developer yout
 | `http_request_bin.zig` | Demonstrates a couple of ways of making HTTP requests |
 
 I recommand [install zig from a Package Manager](https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager). Some of the examples in this project use third-party libraries, unfortunately Zig does not provide official package management at the moment, You need to follow the README.md for using of the third library, or use a package management tool that is in the prototype stage called [zkg](https://github.com/mattnite/zkg). 
-
-I also have provided a Makefile, just cd into the root of this project and run `make`, all the compiled binaries and dlls in the `bin/` directory.
 
 ## Cross Compiling
 
@@ -261,17 +216,9 @@ Ref:
 
 ## Debugging
 
-Use the `repr()` function in combination with `echo`, supports almost all (??) data types, even structs!
+Use the function of `std.debug` namespace to show the call stack, and there is no IDE has good support for Zig's Debugging yet. If you use VSCode, try this extension ( `webfreak.debug` ), plz check this link[ [1](https://www.reddit.com/r/Zig/comments/cl0x6k/debugging_zig_in_vscode/) ][ [2](https://dev.to/watzon/debugging-zig-with-vs-code-44ca) ]for more details.
 
-Example:
-```
-const std = @import("std");
 
-pub fn main() void {
-    var a = [_]u8{ 1, 2, 3 };
-    std.debug.warn("var dump {}!", .a);
-}
-```
 
 ## Setting up a dev environment
 
