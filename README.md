@@ -4,7 +4,7 @@
 
 # OffensiveZig
 
-The purpose of this project is to do some experiments with [Zig](https://ziglang.org/) to explore the possibility of using it for implant development and general offensive operations. it is inspired from [@byt3bl33d3r](https://twitter.com/byt3bl33d3r)'s project "[OffensiveNim](https://github.com/byt3bl33d3r/OffensiveNim)".
+The purpose of this project is to do some experiments with [Zig](https://ziglang.org/), and to explore the possibility of using it for implant development and general offensive operations. it is inspired by [@byt3bl33d3r](https://twitter.com/byt3bl33d3r)'s project "[OffensiveNim](https://github.com/byt3bl33d3r/OffensiveNim)".
 
 
 ## Table of Contents
@@ -42,7 +42,7 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
 
 ## Try to Learn Zig in Y minutes
 
-Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.com/docs/nim/) and it also has a [Book](https://livebook.manning.com/book/nim-in-action) named *Nim in Action*, but Zig dont't. You can find lots of content referenced from https://ziglearn.org & Zig's main developer youtube channel https://www.youtube.com/channel/UCUICU6mgcyGy61pojwuWyHA* 
+Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.com/docs/nim/) and it also has a [Book](https://livebook.manning.com/book/nim-in-action) named *Nim in Action*, but Zig doesn't. You can find lots of content referenced from https://ziglearn.org & Zig's main developer youtube channel https://www.youtube.com/channel/UCUICU6mgcyGy61pojwuWyHA* 
 
 ## How to play
 
