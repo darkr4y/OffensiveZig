@@ -50,12 +50,9 @@ Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.c
 
 | File | Description |
 | ---  | --- |
-| `pop_bin.zig` | Call `MessageBox` WinApi *without* using the 3rd-party library |
-| `pop_zigwin32_bin.zig` | Call `MessageBox` *with* the [Zig-win32](https://github.com/GoNZooo/zig-win32) libary |
-| `pop_zigwin32_lib.zig` | Example of creating a Windows DLL with an exported `DllMain` |  
-| `wmiquery_bin.zig` | Queries running processes and installed AVs using using WMI |
+| `pop_bin.zig` | Call `MessageBox` WinApi *without* using a 3rd-party library |
+| `pop_lib.zig` | Example of creating a Windows DLL with an exported `DllMain` |  
 | `shellcode_bin.zig` | Creates a suspended process and injects shellcode with `VirtualAllocEx`/`CreateRemoteThread`. Also demonstrates the usage of compile time definitions to detect arch, os etc..| 
-| `http_request_bin.zig` | Demonstrates a couple of ways of making HTTP requests |
 
 I recommand [install zig from a Package Manager](https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager). Some of the examples in this project use third-party libraries, unfortunately Zig does not provide official package management at the moment, You need to follow the README.md for using of the third library, or use a package management tool that is in the prototype stage called [zkg](https://github.com/mattnite/zkg). 
 

@@ -1,16 +1,17 @@
 const std = @import("std");
+const win = std.os.windows;
+const user32 = win.user32;
 
-usingnamespace std.os.windows;
+// Types
+const WINAPI = win.WINAPI;
+const HWND = win.HWND;
+const LPCSTR = win.LPCSTR;
+const UINT = win.UINT;
 
-// int MessageBox(
-//  HWND    hWnd,
-//  LPCTSTR lpText,
-//  LPCTSTR lpCaption,
-//  UINT    uType
-// );
+// Alternatively we can use the MessageBoxA function directly from "std.os.windows"
+extern "user32" fn MessageBoxA(hWnd: ?HWND, lpText: LPCSTR, lpCaption: LPCSTR, uType: UINT) callconv(WINAPI) i32;
 
-extern "user32" fn MessageBoxA(hWnd :?HWND, lpText :LPCTSTR, lpCaption :LPCTSTR, uType :UINT) callconv(.Stdcall) c_int;
-
-pub fn main() !void {
-    _ = MessageBoxA(null,"hello,world!","Zig",0);
+pub fn main() void {
+    // The return value is discarded by using "_ ="
+    _ = MessageBoxA(null, "Hello World!", "Zig", 0);
 }
