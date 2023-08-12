@@ -18,7 +18,6 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
   - [Interfacing with C/C++](#interfacing-with-cc)
   - [Creating Windows DLLs with an exported `DllMain`](#creating-windows-dlls-with-an-exported-dllmain)
   - [Optimizing executables for size](#optimizing-executables-for-size)
-  - [Executable size difference when using the 3rd-party windows library vs without](#executable-size-difference-when-using-the-3rd-party-windows-library-vs-without)
   - [Opsec Considerations](#opsec-considerations)
   - [Converting C code to Zig](#converting-c-code-to-zig)
   - [Language Bridges](#language-bridges)
@@ -42,7 +41,7 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
 
 ## Try to Learn Zig in Y minutes
 
-Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.com/docs/nim/) and it also has a [Book](https://livebook.manning.com/book/nim-in-action) named *Nim in Action*, but Zig doesn't. You can find lots of content referenced from https://ziglearn.org & Zig's main developer youtube channel https://www.youtube.com/channel/UCUICU6mgcyGy61pojwuWyHA* 
+If you're eager to learn Zig quickly and effectively, there's a wealth of resources to aid your journey. For a rapid grasp of Zig's syntax and concepts, you can dive into the Learn Zig in Y Minutes guide. To delve deeper into Zig's intricacies, explore the official documentation for various Zig versions at Zig's official documentation. Engage with the vibrant Zig community through the Zig Community Forum, where valuable learning content and discussions await. Additionally, the Zig main developer's YouTube channel, Andrew Kelley, offers insightful videos and discussions.
 
 ## How to play
 
@@ -54,7 +53,7 @@ Nim tutorials are available at [Learn X in Y Minutes](https://learnxinyminutes.c
 | `pop_lib.zig` | Example of creating a Windows DLL with an exported `DllMain` |  
 | `shellcode_bin.zig` | Creates a suspended process and injects shellcode with `VirtualAllocEx`/`CreateRemoteThread`. Also demonstrates the usage of compile time definitions to detect arch, os etc..| 
 
-I recommand [install zig from a Package Manager](https://github.com/ziglang/zig/wiki/Install-Zig-from-a-Package-Manager). Some of the examples in this project use third-party libraries, unfortunately Zig does not provide official package management at the moment, You need to follow the README.md for using of the third library, or use a package management tool that is in the prototype stage called [zkg](https://github.com/mattnite/zkg). 
+I recommend downloading Zig for different CPU architectures directly from Zig's official download page, available at https://ziglang.org/download/. In certain cases within this project, third-party libraries are employed. Although Zig now features an official package manager as of version 0.11, it's still in its early stages of development. For guidance on utilizing these third-party libraries, consult the project's README.md.
 
 ## Cross Compiling
 
@@ -70,12 +69,19 @@ Here's `MessageBox` example
 
 ```zig
 const std = @import("std");
-usingnamespace std.os.windows;
+const win = std.os.windows;
+const user32 = win.user32;
 
-extern "user32" fn MessageBoxA(hWnd: ?HANDLE, lpText: ?LPCTSTR, lpCaption: ?LPCTSTR, uType: UINT) callconv(.Stdcall) c_int;
+const WINAPI = win.WINAPI;
+const HWND = win.HWND;
+const LPCSTR = win.LPCSTR;
+const UINT = win.UINT;
+
+
+extern "user32" fn MessageBoxA(hWnd: ?HWND, lpText: LPCSTR, lpCaption: LPCSTR, uType: UINT) callconv(WINAPI) i32;
 
 pub fn main() void {
-    _ = MessageBoxA(null, "hello,world!", "title", 0);
+    _ = MessageBoxA(null, "Hello World!", "Zig", 0);
 }
 ```
 
@@ -89,29 +95,34 @@ Example:
 
 ```zig
 const std = @import("std");
-const builtin = @import("builtin");
+const win = std.os.windows;
 
-usingnamespace std.os.windows;
+const WINAPI = win.WINAPI;
+const HINSTANCE = win.HINSTANCE;
+const DWORD = win.DWORD;
+const LPVOID = win.LPVOID;
+const BOOL = win.BOOL;
+const HWND = win.HWND;
+const LPCSTR = win.LPCSTR;
+const UINT = win.UINT;
 
-extern "user32" fn MessageBoxA(hWnd: ?HANDLE, lpText: ?LPCTSTR, lpCaption: ?LPCTSTR, uType: UINT) c_int;
+const DLL_PROCESS_DETACH: DWORD = 0;
+const DLL_PROCESS_ATTACH: DWORD = 1;
+const DLL_THREAD_ATTACH: DWORD = 2;
+const DLL_THREAD_DETACH: DWORD = 3;
 
-const DLL_PROCESS_ATTACH = 1;
-const DLL_THREAD_ATTACH = 2;
-const DLL_THREAD_DETACH = 3;
-const DLL_PROCESS_DETACH = 0;
+extern "user32" fn MessageBoxA(hWnd: ?HWND, lpText: LPCSTR, lpCaption: LPCSTR, uType: UINT) callconv(WINAPI) i32;
 
-export fn hello(data: *c_void, size: i32) i32 {
-    _ = MessageBoxA(null, "hello, Im in Exported Function", "title", 0);
-    return 0;
-}
-pub export fn DllMain(hInstance: HINSTANCE, ul_reason_for_call: DWORD, lpReserved: LPVOID) BOOL {
-    switch(ul_reason_for_call) {
+pub export fn _DllMainCRTStartup(hinstDLL: HINSTANCE, fdwReason: DWORD, lpReserved: LPVOID) BOOL {
+    _ = lpReserved;
+    _ = hinstDLL;
+    switch (fdwReason) {
         DLL_PROCESS_ATTACH => {
-            _ = MessageBoxA(null, "hello, Im in DllMain", "title", 0);
+            _ = MessageBoxA(null, "Hello World!", "Zig", 0);
         },
         DLL_THREAD_ATTACH => {},
         DLL_THREAD_DETACH => {},
-        DLL_PROCESS_DETACH =>{},
+        DLL_PROCESS_DETACH => {},
         else => {},
     }
     return 1;
@@ -127,41 +138,6 @@ zig build-lib test.zig -target x86_64-windows
 zig build-lib test.zig -dynamic -target x86_64-windows 
 ```
 
-To Check:
-```
-dumpbin.exe /exports test.dll
-Microsoft (R) COFF/PE Dumper Version 14.28.29334.0
-Copyright (C) Microsoft Corporation.  All rights reserved.
-
-
-Dump of file test.dll
-
-File Type: DLL
-
-  Section contains the following exports for test.dll
-
-    00000000 characteristics
-           0 time date stamp
-        0.00 version
-           0 ordinal base
-          10 number of functions
-           9 number of names
-
-    ordinal hint RVA      name
-
-          1    0 00001AA0 DllMain
-          2    1 00001B20 _DllMainCRTStartup
-          3    2 00041000 __xl_a
-          4    3 00041008 __xl_z
-          5    4 00042010 _tls_end
-          6    5 0003D018 _tls_index
-          7    6 00042000 _tls_start
-          8    7 0003A270 _tls_used
-          9    8 00001A50 hello
-
- ......
-```
-
 ## Optimizing executables for size
 
 Taken from the [Build Mode](https://ziglang.org/documentation/master/#Build-Mode)
@@ -169,22 +145,6 @@ Taken from the [Build Mode](https://ziglang.org/documentation/master/#Build-Mode
 For the biggest size decrease use the following flags `--release-small --strip --single-threaded`
 
 a full example for compile windows executable on Macos: `zig build-exe src.zig -O ReleaseSmall --strip --single-threaded -target x86_64-windows`
-
-## Executable size difference when using the 3rd-party windows library vs without
-
-Incredibly enough the size difference is pretty negligible. Especially when you apply the size optimizations outlined above.
-
-Zig has own build system, it provides a cross-platform, dependency-free way to declare the logic required to build a project. use `zig init-exe` command will generate `build.zig` file is automatically. for using 3rd-party lib "[Zig-win32](https://github.com/GoNZooo/zig-win32)", edit your `build.zig`，or copy the zig-win32 folder to the root folder your zig source code, Zig cannot import module from the parent folder of src.
-
-The two examples `pop_bin.zig` and `pop_zigwin32_bin.zig` were created for this purpose. lets have a look:
-
-```
-% ll
- - rwx r-x r-x  darkray staff 253.50K 25.Nov'20 15:42 >_ pop_bin.exe
- - rwx r-x r-x  darkray staff 253.50K 25.Nov'20 16:18 >_ pop_zigwin32_bin.exe
-```
-
-There seems to be no difference in size from the above results.
 
 ## Opsec Considerations
 
@@ -219,7 +179,7 @@ Use the function of `std.debug` namespace to show the call stack, and there is n
 
 ## Setting up a dev environment
 
-VSCode also provides two extensions ( `tiehuis.zig`  & `lorenzopirro.zig-snippets` ) to support Zig, although the functionality is very limited at this time.
+VSCode provides an official Zig extension (ziglang.vscode-zig) to enhance Zig language support, offering more comprehensive functionality compared to earlier extensions such as 'tiehuis.zig' and 'lorenzopirro.zig-snippets'.
 
 ## Interesting Zig libraries
 
@@ -262,4 +222,4 @@ VSCode also provides two extensions ( `tiehuis.zig`  & `lorenzopirro.zig-snippet
 
 In summary, I wouldn't be willing to use Zig as my primary Offensive language at this time，I've also looked at similar languages, such as [Vlang](https://vlang.io/), but still haven't started trying them out. Nim has better community resources and clearer documentation than Zig, reading the documentation became a pain when trying to get Zig to do the same job. Manual memory management is not very friendly for non-professional developers, so maybe when Zig stabilizes in the future, I'll be more willing to use it for some development work in penetration testing.
 
-*ps: I am not a pro developer, this project is only from the perspective of a penetration testing engineer. The above opinions are my own,  plz correct me if theres any errors :)*
+*P.S.: I am not a professional developer; this project is presented solely from the viewpoint of a penetration testing engineer. The opinions expressed above are my own. Please do correct me if you find any errors.*
