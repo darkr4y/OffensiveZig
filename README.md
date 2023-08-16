@@ -1,5 +1,5 @@
 <p align="center">
-    <img height="300" alt="OffensiveZig" src="https://user-images.githubusercontent.com/4407382/100193701-41de7b00-2f2f-11eb-830d-eaf152476dc1.gif">
+    <img height="300" alt="OffensiveZig" src="https://github.com/darkr4y/OffensiveZig/assets/24826851/92368640-ee61-4ca2-a100-2e95c613ad8f">
 </p>
 
 # OffensiveZig
