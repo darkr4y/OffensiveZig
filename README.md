@@ -27,21 +27,22 @@ The purpose of this project is to do some experiments with [Zig](https://ziglang
   - [Zig for implant dev links](#zig-for-implant-dev-links)
   - [Comparison of Zig and Nim](#comparison-of-zig-and-nim)
   - [Summary](#summary)
+  - [Contributors](#contributors)
 
 ## Why Zig?
 
-- Zig's backend using LLVM and also can be as a C compiler, Nim can use it to compile. [ [wikipedia](https://en.wikipedia.org/wiki/Zig_(programming_language)) ]
-- The feature about generation of human-readable C code may be supported in the future. [ [issue #3772](https://github.com/ziglang/zig/issues/3772) ] 
-- Zig doesn't rely on a VM/runtime, the static executable is super small.
-- Rust inspired syntax, allows rapid native payload creation & prototyping.
-- Integration with C libraries without FFI/bindings.
-- Manual memory management, no hidden control flow.
-- Its very easy to do cross-compile things and can build for any of the targets from [here](https://ziglang.org/#Support-Table), no "cross toolchain" needs to be installed or anything like that.
-- To Learn `zig zen`: together we serve the users.
+- The Zig toolchain offers the capability to cross-compile C/C++ projects using commands like *zig cc* or *zig c++*. This functionality allows you to efficiently utilize the Zig toolchain for building your pre-existing C/C++ projects.
+- Zig operates without relying on a VM/runtime, the static executable is super small.
+- Zig boasts a minimal Rust-like syntax while retaining the simplicity of C, enabling swift development of native payloads and prototypes.
+- Zig offers seamless integration with C libraries without the need for Foreign Function Interface (FFI) bindings.
+- Zig emphasizes manual memory management and transparent control flow, avoiding hidden complexities.
+- Zig excels in facilitating cross-compilation without the need for a separate "cross toolchain," and can build for various targets listed [here](https://ziglang.org/documentation/master/#Targets).
+- Compiling to WebAssembly and interacting with JavaScript code within a browser is relatively straightforward in Zig [here](https://ziglang.org/documentation/master/#WebAssembly).
+- The [community](https://github.com/ziglang/zig/wiki/Community) is known for its approachability, friendliness, and high level of activity. The Zig [Discord](https://discord.gg/zig) server serves as a valuable platform for asking questions and staying informed about the latest developments within the language.
 
 ## Try to Learn Zig in Y minutes
 
-If you're eager to learn Zig quickly and effectively, there's a wealth of resources to aid your journey. For a rapid grasp of Zig's syntax and concepts, you can dive into the Learn Zig in Y Minutes guide. To delve deeper into Zig's intricacies, explore the official documentation for various Zig versions at Zig's official documentation. Engage with the vibrant Zig community through the Zig Community Forum, where valuable learning content and discussions await. Additionally, the Zig main developer's YouTube channel, Andrew Kelley, offers insightful videos and discussions.
+If you're eager to learn Zig quickly and effectively, there's a wealth of resources to aid your journey. For a rapid grasp of Zig's syntax and concepts, you can dive into the [Learn Zig in Y Minutes guide](https://learnxinyminutes.com/docs/zig/). To delve deeper into Zig's intricacies, explore the official documentation for various Zig versions [here](https://ziglang.org/documentation/master/). Engage with the vibrant Zig community through [Ziggit](https://ziggit.dev/).
 
 ## How to play
 
@@ -49,21 +50,23 @@ If you're eager to learn Zig quickly and effectively, there's a wealth of resour
 
 | File | Description |
 | ---  | --- |
+| `keylogger_bin.zig` | Keylogger using `SetWindowsHookEx` |
 | `pop_bin.zig` | Call `MessageBox` WinApi *without* using a 3rd-party library |
 | `pop_lib.zig` | Example of creating a Windows DLL with an exported `DllMain` |  
-| `shellcode_bin.zig` | Creates a suspended process and injects shellcode with `VirtualAllocEx`/`CreateRemoteThread`. Also demonstrates the usage of compile time definitions to detect arch, os etc..| 
+| `shellcode_bin.zig` | Creates a suspended process and injects shellcode with `VirtualAllocEx`/`CreateRemoteThread`. | 
+| `suspended_thread_injection.nim` | Shellcode execution via suspended thread injection |
 
-I recommend downloading Zig for different CPU architectures directly from Zig's official download page, available at https://ziglang.org/download/. In certain cases within this project, third-party libraries are employed. Although Zig now features an official package manager as of version 0.11, it's still in its early stages of development. For guidance on utilizing these third-party libraries, consult the project's README.md.
+I recommend downloading Zig for different CPU architectures directly from Zig's official download page, available at https://ziglang.org/download/. In certain cases within this project, third-party libraries are employed.
 
 ## Cross Compiling
 
-See the cross-compilation section in the [Zig compiler usage guide](https://ziglang.org/#Cross-compiling-is-a-first-class-use-case), for a lot more details.
+See the cross-compilation section in the [Zig compiler usage guide](https://ziglang.org/learn/overview/#cross-compiling-is-a-first-class-use-case), for a lot more details.
 
 Cross compiling to Windows from MacOs/Nix: `zig build-exe -target x86_64-windows src.zig`
 
 ## Interfacing with C/C++
 
-See the insane [Integration with C](https://ziglang.org/#Integration-with-C-libraries-without-FFIbindings) section in the Zig document.
+Explore the remarkable [Integration with C](https://ziglang.org/learn/overview/#integration-with-c-libraries-without-ffibindings) section in the Zig documentation.
 
 Here's `MessageBox` example
 
@@ -87,8 +90,6 @@ pub fn main() void {
 
 ## Creating Windows DLLs with an exported `DllMain`
 
-See the insane [Building a library](https://ziglang.org/documentation/master/#Building-a-Library) section.
-
 As you can see, the code in the example is already very close to what C code looks like, just use `export` keyword.
 
 Example:
@@ -106,10 +107,10 @@ const HWND = win.HWND;
 const LPCSTR = win.LPCSTR;
 const UINT = win.UINT;
 
-const DLL_PROCESS_DETACH: DWORD = 0;
 const DLL_PROCESS_ATTACH: DWORD = 1;
 const DLL_THREAD_ATTACH: DWORD = 2;
 const DLL_THREAD_DETACH: DWORD = 3;
+const DLL_PROCESS_DETACH: DWORD = 0;
 
 extern "user32" fn MessageBoxA(hWnd: ?HWND, lpText: LPCSTR, lpCaption: LPCSTR, uType: UINT) callconv(WINAPI) i32;
 
@@ -142,13 +143,11 @@ zig build-lib test.zig -dynamic -target x86_64-windows
 
 Taken from the [Build Mode](https://ziglang.org/documentation/master/#Build-Mode)
 
-For the biggest size decrease use the following flags `--release-small --strip --single-threaded`
-
-a full example for compile windows executable on Macos: `zig build-exe src.zig -O ReleaseSmall --strip --single-threaded -target x86_64-windows`
+For the biggest size decrease use the following flags `-O ReleaseSmall -fstrip -fsingle-threaded`
 
 ## Opsec Considerations
 
-All samples are compiled in this mode `zig build-exe src.zig -O ReleaseSmall --strip --single-threaded -target x86_64-windows`
+Most samples are compiled in this mode `zig build-exe src.zig -O ReleaseSmall -fstrip -fsingle-threaded -target x86_64-windows`
 
 Aside from a few specific NT functions found in the import table, I have not been able to find any other significant features that would indicate that they were coded in Zig.
 
@@ -157,15 +156,13 @@ Aside from a few specific NT functions found in the import table, I have not bee
 
 ## Converting C code to Zig
 
-Zig already provides the ability to translate C to Zig code, just try `zig translate-c`
-
-Used it to translate a bunch of small C snippets, I haven't tried using this feature yet.
+Zig offers the functionality to convert C code to Zig code through the command `zig translate-c`. I haven't personally experimented with this feature yet.
 
 ## Language Bridges
 
-About python module or Java JNI, I have not tried it yet.
+Regarding Python modules or Java JNI integration, I haven't had the opportunity to test these aspects yet.
 
-Ref:
+References:
 
 - https://github.com/kristoff-it/zig-cuckoofilter/
 - https://github.com/ziglang/zig/issues/5795
@@ -173,13 +170,17 @@ Ref:
 
 ## Debugging
 
-Use the function of `std.debug` namespace to show the call stack, and there is no IDE has good support for Zig's Debugging yet. If you use VSCode, try this extension ( `webfreak.debug` ), plz check this link[ [1](https://www.reddit.com/r/Zig/comments/cl0x6k/debugging_zig_in_vscode/) ][ [2](https://dev.to/watzon/debugging-zig-with-vs-code-44ca) ]for more details.
+You can utilize the functions within the `std.debug` namespace to display the call stack. Currently, there is limited IDE support for debugging Zig. If you're using VSCode, you can try the `webfreak.debug` extension. For more information on debugging Zig with VSCode, you can refer to the following links:
+- [Reddit post: Debugging Zig in VSCode](https://www.reddit.com/r/Zig/comments/cl0x6k/debugging_zig_in_vscode/)
+- [Dev.to article: Debugging Zig with VS Code](https://dev.to/watzon/debugging-zig-with-vs-code-44ca)
 
-
+These resources should provide you with additional details on setting up and using the webfreak.debug extension for Zig debugging in VSCode.
 
 ## Setting up a dev environment
 
-VSCode provides an official Zig extension (ziglang.vscode-zig) to enhance Zig language support, offering more comprehensive functionality compared to earlier extensions such as 'tiehuis.zig' and 'lorenzopirro.zig-snippets'.
+[VSCode](https://code.visualstudio.com/) provides an official Zig extension `ziglang.vscode-zig` to enhance Zig language support, offering more comprehensive functionality compared to earlier extensions such as `tiehuis.zig` and `lorenzopirro.zig-snippets`.
+
+The link to the [Zig Tools](https://ziglang.org/learn/tools/) page on the Zig website will likely provide further information on various tools and resources available for Zig development, including debugging tools and extensions.
 
 ## Interesting Zig libraries
 
@@ -205,21 +206,26 @@ VSCode provides an official Zig extension (ziglang.vscode-zig) to enhance Zig la
 
 |    	 | Zig	 |  Nim  |
 |  ----  | ----  | ----  |
-| Syntax Styles  | like Rust | like Python |
-| Backend  | LLVM or Self-hosted | Others C Compiler or Self-Hosted |
+| Syntax Styles  | Rust-like | Python-like |
+| Backend  | LLVM or Self-hosted | C Compiler or Self-Hosted |
 | Code Generate  | Support in future | Supported |
 | Standard Library  | General | Numerous |
 | Memory Management  | Manual | Multi-paradigm GC |
 | FFI | *Directly* | Support |
 | Translate C to *ThisLang*  | Official | Third-Party |
-| Package Manager  | N/A | Nimble |
+| Package Manager  | Official Package Manager as of Zig 0.11 | Nimble |
 | Cross Compile | Convenient | Convenient |
-| Executable Size (windows x86 debug mode) | ~200K | ~300K |
-| Learning Curve | Not so easy | Easy |
-| Community Resources | Poor | Rich |
+| Learning Curve | Intermediate | Easy |
+| Community Resources | Growing | Rich |
 
 ## Summary
 
-In summary, I wouldn't be willing to use Zig as my primary Offensive language at this time，I've also looked at similar languages, such as [Vlang](https://vlang.io/), but still haven't started trying them out. Nim has better community resources and clearer documentation than Zig, reading the documentation became a pain when trying to get Zig to do the same job. Manual memory management is not very friendly for non-professional developers, so maybe when Zig stabilizes in the future, I'll be more willing to use it for some development work in penetration testing.
+In conclusion, I am not currently inclined to choose Zig as my primary language for offensive purposes. I've also explored alternative languages like [Vlang](https://vlang.io/), but I haven't initiated practical experimentation with them yet. Comparatively, Nim offers superior community resources and more comprehensible documentation than Zig. While attempting to achieve similar outcomes, deciphering Zig's documentation proved to be a challenging endeavor. The manual memory management aspect may not be particularly user-friendly for those without professional development experience. It's possible that as Zig evolves and stabilizes in the future, I might be more inclined to employ it for specific development tasks within penetration testing.
 
 *P.S.: I am not a professional developer; this project is presented solely from the viewpoint of a penetration testing engineer. The opinions expressed above are my own. Please do correct me if you find any errors.*
+
+## Contributors 
+
+<a href="https://github.com/byt3bl33d3r/OffensiveNim/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=byt3bl33d3r/OffensiveNim" />
+</a>

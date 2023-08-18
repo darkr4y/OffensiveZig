@@ -14,10 +14,10 @@ const LPCSTR = win.LPCSTR;
 const UINT = win.UINT;
 
 // fdwReason parameter values
-const DLL_PROCESS_DETACH: DWORD = 0;
 const DLL_PROCESS_ATTACH: DWORD = 1;
 const DLL_THREAD_ATTACH: DWORD = 2;
 const DLL_THREAD_DETACH: DWORD = 3;
+const DLL_PROCESS_DETACH: DWORD = 0;
 
 extern "user32" fn MessageBoxA(hWnd: ?HWND, lpText: LPCSTR, lpCaption: LPCSTR, uType: UINT) callconv(WINAPI) i32;
 
