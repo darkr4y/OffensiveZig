@@ -226,6 +226,6 @@ In conclusion, I am not currently inclined to choose Zig as my primary language 
 
 ## Contributors 
 
-<a href="https://github.com/byt3bl33d3r/OffensiveNim/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=byt3bl33d3r/OffensiveNim" />
+<a href="https://github.com/darkr4y/OffensiveZig/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=darkr4y/OffensiveZig" />
 </a>
