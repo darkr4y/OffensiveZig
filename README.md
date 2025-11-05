@@ -197,6 +197,7 @@ The link to the [Zig Tools](https://ziglang.org/learn/tools/) page on the Zig we
 - https://github.com/alexnask/interface.zig
 - https://github.com/marler8997/zig-os-windows
 - https://github.com/nrdmn/awesome-zig
+- https://github.com/The-Z-Labs/bof-launcher
 
 ## Zig for implant dev links
 
